@@ -30,6 +30,7 @@ document.querySelector("#year").textContent = String(new Date().getFullYear());
 const form = document.querySelector("#contact-form");
 const status = document.querySelector("#form-status");
 const submitButton = form.querySelector('button[type="submit"]');
+const isLocalDevelopment = ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 form.addEventListener("input", (event) => {
   event.target.removeAttribute("aria-invalid");
@@ -67,18 +68,45 @@ form.addEventListener("submit", async (event) => {
   submitButton.setAttribute("aria-busy", "true");
 
   try {
-    const response = await fetch("/api/inquiries", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(inquiry),
-    });
-    const result = await response.json();
+    let response;
+    if (isLocalDevelopment) {
+      response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inquiry),
+      });
 
-    if (!response.ok) {
-      throw new Error(result.error || "We couldn't send your inquiry. Please try again.");
+      if (!response.headers.get("content-type")?.includes("application/json")) {
+        throw new Error("The inquiry service returned an unexpected response. Please email deyvontech@gmail.com instead.");
+      }
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "We couldn't send your inquiry. Please try again.");
+      }
+
+      status.textContent = result.message;
+    } else {
+      const submission = new URLSearchParams();
+      for (const [fieldName, value] of new FormData(form)) {
+        if (typeof value === "string") {
+          submission.append(fieldName, value);
+        }
+      }
+      submission.set("form-name", form.name);
+      response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: submission.toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error("We couldn't send your inquiry. Please try again or email deyvontech@gmail.com directly.");
+      }
+
+      status.textContent = "Thanks for reaching out. Your inquiry has been received.";
     }
 
-    status.textContent = result.message;
     status.dataset.state = "success";
     form.reset();
   } catch (error) {

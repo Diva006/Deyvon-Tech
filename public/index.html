@@ -252,7 +252,9 @@
               </a>
             </div>
           </div>
-          <form class="contact-form" id="contact-form" novalidate>
+          <form class="contact-form" id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+            <input type="hidden" name="form-name" value="contact">
+            <p class="sr-only"><label>Don’t fill this out if you’re human: <input name="bot-field" autocomplete="off" tabindex="-1"></label></p>
             <div class="form-heading">
               <span>01 <i></i> START A CONVERSATION</span>
               <h3>Tell us a little about it.</h3>

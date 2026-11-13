@@ -1,6 +1,6 @@
 # Deyvon Tech website
 
-A responsive company website and small Node.js inquiry backend. The site uses the supplied Deyvon Tech brand images and company profile.
+A responsive company website with a Node.js local development server and Netlify Forms for production inquiries. The site uses the supplied Deyvon Tech brand images and company profile.
 
 ## Run locally
 
@@ -10,34 +10,19 @@ Install Node.js 20 or newer, then run:
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Set the `PORT` environment variable to use another port. Node.js 20 or newer is required by the email dependency.
+Open [http://localhost:3000](http://localhost:3000). Set the `PORT` environment variable to use another port. Node.js 20 or newer is required by the local development server.
 
-## Deploy on Render with `deyvon.in`
+## Deploy on Netlify with `deyvon.in`
 
-The included `render.yaml` is a Render Blueprint for the Node.js website. It configures the app, a `/health` endpoint, Gmail SMTP environment variables, and a persistent disk for inquiry records. **A persistent disk requires a paid Render service and may incur ongoing charges. Check Render's current plan and disk prices before creating the service.**
+The site is configured as a static Netlify deployment. `netlify.toml` publishes only the `public` folder, which contains the page, styles, JavaScript, and both image assets. Netlify does not run the Node.js server in `server.js`.
 
-1. Create a GitHub account if you do not already have one, create a **private** repository, and upload the website project. Do not upload `.env`, passwords, or other credentials. Git ignores `.env`, `node_modules`, and inquiry data.
-2. Create a Render account and connect the private GitHub repository. In Render, select **New → Blueprint**, select your repository, and review the service and persistent disk. Confirm the price before approving any paid resource.
-3. During Blueprint setup, provide the `SMTP_PASS` secret. For Gmail, create a Google App Password using the account's 2-Step Verification. Use the sending account's App Password, not your normal Gmail password. Render supplies the `PORT` variable automatically.
-4. Wait for the first deployment and confirm the Render health check succeeds. Render assigns a temporary `*.onrender.com` address. Submit a real test inquiry and confirm `deyvontech@gmail.com` receives it before routing your custom domain.
-5. In the Render service's **Settings → Custom Domains**, add `deyvon.in` and `www.deyvon.in`. Render will display the DNS records to create for your service.
-6. In GoDaddy's **DNS Management** for `deyvon.in`, add or update only the website records (`@` and `www`) to match the exact values Render displays. Remove conflicting records for those same website hosts if needed. **Do not remove or change MX, SPF, DKIM, DMARC, or other email DNS records**; those can affect company email.
-7. Wait for DNS to propagate, then confirm both hostnames work over HTTPS and the Render dashboard shows the domain as verified.
+1. In Netlify, connect the GitHub repository `Diva006/Deyvon-Tech`. Set the publish directory to `public` and leave the build command empty; `netlify.toml` provides the publish-directory setting.
+2. Ensure Netlify Forms are enabled for the site, then deploy the latest `main` branch. The contact form is named `contact`; a valid production submission is saved in Netlify Forms.
+3. In the Netlify site dashboard, open **Forms** and confirm `contact` was detected after deployment. Under form notifications, add an email notification to `deyvontech@gmail.com`.
+4. In Netlify's domain settings, add `deyvon.in` and `www.deyvon.in` and follow the exact DNS instructions shown for the site.
+5. In GoDaddy's DNS Management, remove old forwarding records and conflicting website A/CNAME records, then enter the records Netlify provides. The current domain has both GoDaddy forwarding addresses and GitHub Pages addresses, which can send visitors to the wrong host. **Do not change MX, SPF, DKIM, DMARC, or other email records.**
+6. Wait for DNS propagation and Netlify HTTPS provisioning. Confirm the page and `/logo-mark.png` and `/brand-art.png` load over HTTPS, then submit a test form and verify its entry and email notification in Netlify.
 
-The site source and `render.yaml` must be committed to the connected GitHub repository for Render to deploy it. You must sign in to your own GitHub, Render, and GoDaddy accounts and approve any charges. Never share passwords, App Passwords, or other secret values in chat.
+The form uses Netlify Forms in production; its submissions are stored in the Netlify dashboard, so no database or writable server filesystem is required. The local `npm start` development server continues to use the JSON inquiry API.
 
-## Email notifications for contact inquiries
-
-Each valid contact form inquiry is saved as a JSON line in `data/inquiries.jsonl` and emailed to `deyvontech@gmail.com`. The inquiry email includes the sender's details and project message; replying to it replies directly to the sender. The data folder is outside the public file allowlist. Keep the folder private and make sure the deployment environment has persistent, protected storage. Set `INQUIRY_FILE` in `.env` or the hosting environment to select another private, persistent path.
-
-### Configure Gmail SMTP
-
-1. Enable 2-Step Verification for the Gmail account that will send website inquiries.
-2. Create a Google App Password for the website. Use this password, **not** your regular Google password.
-3. Copy `.env.example` to `.env` in the project folder.
-4. Set `SMTP_USER` to the sending Gmail address and `SMTP_PASS` to its App Password (without spaces). By default, notifications go to `deyvontech@gmail.com`; set `EMAIL_TO` to another address if needed.
-5. Run `npm start` and submit a test inquiry to confirm that the email arrives.
-
-Keep `.env` private; it is ignored by Git. Never put SMTP credentials in website files or share them publicly. Restart the server after changing `.env`.
-
-If SMTP is not configured, a valid inquiry is still saved locally, but the form reports that the email notification was not sent. If the mail provider rejects delivery, the form reports the delivery error and the saved inquiry is retained. The website email and phone links remain available as an alternative contact method. Hosted deployments must configure the same SMTP variables in the hosting provider's secret/environment settings.
+You must sign in to your own GitHub, Netlify, and GoDaddy accounts to configure deployment, form notifications, and DNS. Check any applicable plan or usage charges in your Netlify account. Never share passwords or other secret credentials in chat.

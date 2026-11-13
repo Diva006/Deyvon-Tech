@@ -39,6 +39,7 @@ const services = new Set([
   "Tracking & reporting",
   "Something else",
 ]);
+const publicDirectory = path.join(__dirname, "public");
 const publicFiles = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
@@ -229,7 +230,7 @@ async function handleStaticFile(pathname, request, response) {
   }
 
   try {
-    const content = await fs.readFile(path.join(__dirname, file[0]));
+    const content = await fs.readFile(path.join(publicDirectory, file[0]));
     response.writeHead(200, {
       "Content-Type": file[1],
       "Content-Length": content.length,
