@@ -43,8 +43,8 @@ const publicFiles = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/styles.css", ["styles.css", "text/css; charset=utf-8"]],
   ["/script.js", ["script.js", "text/javascript; charset=utf-8"]],
-  ["/logo-mark.png", ["Sleek_3D_DV_logo_design-removebg-preview.png", "image/png"]],
-  ["/brand-art.png", ["ChatGPT Image Apr 15, 2026, 02_54_56 PM.png", "image/png"]],
+  ["/logo-mark.png", ["logo-mark.png", "image/png"]],
+  ["/brand-art.png", ["brand-art.png", "image/png"]],
 ]);
 
 function sendJson(response, statusCode, payload) {
